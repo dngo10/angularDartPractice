@@ -1,0 +1,11 @@
+<ul class="gouvis">
+  <li *ngFor="let employee of employeess" 
+        [class.selected]="employee === selected"
+        (click)="onSelect(employee)"
+  >
+    
+    <span class="badge">{{employee.id}}</span> {{employee.name}}
+  </li>
+</ul>
+
+<my-employee [employee]="selected"></my-employee>
