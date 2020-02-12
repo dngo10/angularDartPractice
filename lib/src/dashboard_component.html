@@ -1,8 +1,10 @@
 <h3>Gouvis Employees</h3>
 <div class="grid grid-pad">
-  <div *ngFor="let employee of employees">
+  <a *ngFor="let employee of employees" class="col-1-4"
+    [routerLink] = "employeeUrl(employee.id)"
+  >
     <div class="module hero">
       <h4>{{employee.name}}</h4>
     </div>
-  </div>
+  </a>
 </div>

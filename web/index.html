@@ -25,3 +25,505 @@
 </body>
 
 </html>
+
+<!--
+  ATTRIBUTE DIRECTIVES
+
+  There are three kinds of DIRECTIVES in Angular:
+    1. Components -- directives with a template.
+    2. Structural directives [ngFor, NgIf] -- change the DOM layout by adding and removing DOM elements.
+    3. Attribute directives [NgStyle] -- change the apprearance or behavior of an elemnt, component, or another directives.
+  
+  There are 2 kinds of ATTRIBUTE DIRECTIVES:
+    1. Class-based: -- A full-featured attribute directive, implemented using a class.
+    2. Functional: A stateless attribute directive, implementd using a top-lelvel function.
+  
+  CLASS BASED attirbute directives:
+    -- Creating a class-based attribute directive requires writing a controller class annotated with
+       @Directive(), which specifies the selector that identifies the attribute. The controller class
+       implements the desired diretive behavior.
+
+       EXAMPLE:
+
+       HTML: 
+              <p myHighlight>Highlight me!</p>
+      
+       DART:
+              import 'dart:html';
+
+              import 'package:angular/angular.dart';
+
+              @Directive(selector: '[myHighlight]')
+              class HighlightDirective {
+                HighlightDirective(Element el) {
+                  el.style.backgroundColor = 'yellow';
+                }
+              }            
+  
+        @Directives() requries a CSS selector to identify the HTML in the template that is associated with
+        the directive. The CSS selector for an attribute is the attribute name in the square brackets.
+
+              why call it myHightlight :
+                -- a best practice is to prefix selector names to ensure they don't conflict with standard
+                HTML attributes. This also reduces the risk of colliding with third-party directive names.
+              
+        Angular creates a new instance of the directive's controller class for each matching element, injecting an HTML
+        Element into the constructor.
+
+  Apply the attribute directive:
+        1. There must always a parent component or AppComponent in order to show it.
+
+          EX:
+              directives: [autoIdDirective, HighlightDirective],
+
+  Respond to user-initiated events:
+        -- The diretive could be more dynamic. It could detect when the user mouses into or out of the element
+        and respond by setting or clearing the highlightcolor.
+
+        Add two eventhandlers that respond when the mouse enters or leaves, each adorned by the HostListener
+        annotation.
+
+
+        EXAMPLE:
+              @HostListener('mouseenter')
+              void onMouseEnter() {
+               _highlight('yellow');
+              }
+
+              @HostListener('mouseleave')
+              void onMouseLeave() {
+               _highlight();
+              }
+
+              void _highlight([String color]) {
+               _el.style.backgroundColor = color;
+              }
+
+              Of course you could reach into the DOM with standard JavaScript and and attach event listeners manually.
+              There are at least three problems with that approach:
+
+                  +You have to write the listeners correctly.
+                  +The code must detach the listener when the directive is destroyed to avoid memory leaks.
+                  +Talking to DOM API directly isn’t a best practice.
+
+    // Here we have host listener.
+
+    Bind to a second property:
+    
+    How to bind to a second property when you're already binding to the myHighlight attribute name?
+            -> string them alow in the temlate.
+
+            EX:
+                <p [myHighlight]="color" defaultColor="violet">
+                  Highlight me too!
+                </p>
+
+  Pass values into the directive with an @Input data binding:
+
+  Write a functional directive: (insteads of adding @Directive to class, now at it to function)
+          
+
+  You can do @Input OR @Input('you-own-define-name')
+
+    - It adds metadata to the class that makes the directive's highlightColor property available for binding.
+    - Without the input metadata, Angular rejects the binding.
+
+
+
+COMPONENT STYLES:
+  
+  Angular apps are styled with standard CSS. That means you can apply everything you about CSS stylesheets, selectors
+  rules, and media queries directly to Angular apps.
+
+  -> Additionally, you can bundle styles with components enabling a more modular design than regular stylesheets.
+  // besically this is nothing new.
+
+  Special selectors:
+
+    Angular supports a few special selectors from the world of shadown DOM style scoping.
+    
+    :host and :host()
+    
+    host selector is the only way to target the host element. You can't reach the host element from inside
+    the component with other selectors because it's not part of the component's own template.
+    The host element is in a parent component's template.
+
+    Use the function form :host() to apply host styles conditionally by ncluding another selector
+    inside parethenses after : host.
+
+    EXAMPLE:
+
+                :host(.active) {
+                  border-width: 3px;
+                }
+  
+    :host-context()
+
+    Sometimes it's useful to apply styles based on some condition outside of a component's view. For example,
+    a CSS theme class could be applied to the document <body> element, and you want to change how your component
+    looks based on that.
+
+    Use the :host-context() pseudo-class selector, which works just like the function form of :host(). The :host-context()
+    selector looks for a CSS class in any ancestor of the component host element, up to the document root.
+    The :host-context() selector is seful when combined with another selector.
+
+    ::ng-deep
+    Component styles normally apply only to the HTML in the component's own template.
+    Use the ::ng-deep selector to force a style down through the child compoent tree into all the child 
+    component views. The ::ng-deep selector works to any depth of nested components, and it
+    applies to both the view child and content children of the component.
+
+    EXAMPLE:
+      :host ::ng-deep h3 {
+        font-style: italic;
+      }
+
+    [ABOVE] Component style apply from host element down through this component to all of its child elements in the DOM.
+
+    Loading styles into components:
+
+    There are several ways to add styles to a component.
+    By setting styles or styleUrls metadata.
+    Inline in the template HTML
+    With CSS imports. (you import at CSS file.)
+      EXAMPLE: @import 'hero_details_box.css'; (int file_name.css)
+
+  Controlling view encapsulation:
+    By default, component styles are encapsulated, affecting only the HTML in the component's template.
+    You can use the secial selectors to reach outside of the component's view, or you can disable
+    view encapsulation completely for the component.
+    
+ SERVICES
+ 
+ logging service, data service,
+ This is a logging file 
+ 
+ class Logger{
+  void log(Object msg) => window.console.log(msg);
+  void error(Object msg) => window.console.log(msg);
+  ...
+ }
+ 
+ Component classes should be lean. They don't have to fetch data from the server, validate user input,
+ or log directly to the console. ---[[A component's job is to enable the user experience nothing more]]---.
+ It mediates between the view (rendered by the template) and the application logic (which often includes
+ some notion of a model). A good component presents properties and methods for data binding. It delegate
+ everything nontrivial to services.abstract
+ 
+ DEPENDENCY INJECTION
+ 
+ When Angular creates a component, it first asks an injector for the services hey the component requires.
+ An injector maintains a container of service instances that it has previously created. If a requested service
+ instance is not in the container, the injector makes one and adds it to the container before returning
+ the service to Angular.
+ 
+ A provider care create or return a service, and is often the service class itself.abstract
+ 
+ You can register providers with a component, or through the root ijector when the app is lauched.
+ Registering the provider with a component means you get a new instance of the service with each new instance
+ of that component. A service provided through a component is shared with all of the component's descendants
+ in the app component tree.
+
+-------------------------------------------------------------------------------------------------
+DISPLAYING DATA
+
+-- interpolation {{myGouvis}}
+-- Angular updates the display when these properties change.
+
+More precisely, the redisplay occurs after some kind of asynchronous event related to the view,
+such as keystroke, a timer completion, or a response to an HTTP request.
+
+Template inline or template file ?
+
+The choice between inline and separate HTML is a matter of taste, circumstances, and organization policy.
+(bottomline: it doesn't matter.)
+
+-- when putting directives in template, you have to put them in.
+
+Conditional display with NgIf (just use it, Angular has intellsense)
+The template expression inside the double quote, *ngIf = "heros.length > 3"
+
+*** NgIf DOES NOT show and hide the message. It ADD or REMOVE element from DOM.
+
+---------------------------------------------------------------------------------------------------
+
+USER INPUT
+
+User action such as clicking a link, pushing a button, and entering text raise DOM event.
+
+Binding to user input events:
+
+  <button (click)="onClickMe()">text</button>
+  (click): event
+  onClickMe(): function
+
+Get user input from the $event object:
+ DOM events carry a payload of information that may be useful to the component:
+
+ class KeyUp1Component {
+   String values = '';
+ 
+   void onKey(dynamic event) {
+     values += event.target.value + ' | ';
+   }
+ }
+
+<input (keyup)="onKey($event)"> (if you use inline, but \ before $)
+<p>{{values}}</p>
+
+TypeEvent:
+
+Although using dynamic type simplifies the code a bit, using a more specific type can reveal properties
+of the event object and prevent silly mistakes.
+
+class KeyUp1Component {
+  String values = '';
+
+  void onKey(KeyboardEvent event) {
+    InputElement el = event.target;
+    values += '${el.value}  | ';
+  }
+}
+
+Passing $event is a dubious practice.
+-- Typing the event object reveals a significant issue with passing the entire DOM event
+into the method: the component is closely tied to the template details. The component
+can't extract data without using web APIs. That breaks the separation of concerns between
+the template and the component.
+
+Get user input from a template reference variable. (THIS IS THE RIGHT WAY)
+
+Angular template reference variables provide direct access to an element from within
+the template. The declare a template reference variable, precede an identifier with 
+a hash character(#)
+
+@Component(
+  selector: 'loop-back',
+  template: '''
+    <input #box (keyup)="onKey(box.value)">
+    <p>{{values}}</p>
+  ''',
+)
+class LoopBackComponent {
+  String values = '';
+  void onKey(value) => values += '$value | ';
+}
+
+// Must bind to an event.
+
+Key event filtering (with key.enter)
+
+@Component(
+  selector: 'key-up3',
+  template: '''
+    <input #box (keyup.enter)="values=box.value">
+    <p>{{values}}</p>
+  ''',
+)
+class KeyUp3Component {
+  String values = '';
+}
+
+On Blur
+In the previous excample, the current state of the input box is lost if the user clicks elsewhere
+on the page without first pressing Enter. The component's value property is updated only when the
+user presses Enter.
+
+To fix this issue, listen to both the Enter key and the blur event.
+
+@Component(
+  selector: 'key-up4',
+  template: '''
+    <input #box
+      (keyup.enter)="values=box.value"
+      (blur)="values=box.value">
+    <p>{{values}}</p>
+  ''',
+)
+class KeyUp4Component {
+  String values = '';
+}
+
+
+Use template variables to refer to elements. The newHero template variable refers to the <input> element. 
+You can reference newHero from any sibling or child of the <input> element.
+
+Pass values, not elements. Instead of passing the newHero into the component’s addHero() method, get the
+input box value and pass that to addHero().
+
+Keep template statements simple. The (blur) event is bound to two statements. The first statement calls 
+addHero(). The second statement, newHero.value='', clears the input box after a new hero is added to the list
+
+==========================
+FORM
+
+Forms are the mainstay of business apps.
+
+-- two-way data binding
+-- change tracking
+-- validation
+-- error handling
+
+Now you need to display, listen, and extract at the same time.
+
+<mark>{{model.name}}</mark><hr>
+<div class="form-group">
+  <label for="name">Name&nbsp;*</label>
+  <input type="text" class="form-control" id="name" required
+         [(ngModel)]="model.name"
+         ngControl="name">
+</div>
+
+You added a diagnostic interpolation before the form-group so you can see what
+you are doing. You left yourself a note to threw it away.
+
+The diangostic is evidence that values really are flowing from the input to the
+model and back again.
+
+Internally, Angular creates NgFormControl instances and registers then with an
+NgForm directive that Angular attached to the <form> tag. Each NgFormControl is
+registered under the name you assigned to the ngControl directive. You'll read
+more about NgForm later in this guide.
+
+FINAL FORM STYLE:
+
+<mark>{{model}}</mark><hr>
+<div class="form-group">
+  <label for="name">Name&nbsp;*</label>
+  <input type="text" class="form-control" id="name" required
+         [(ngModel)]="model.name"
+         ngControl="name">
+</div>
+<div class="form-group">
+  <label for="alterEgo">Alter Ego</label>
+  <input type="text" class="form-control" id="alterEgo"
+         [(ngModel)]="model.alterEgo"
+         ngControl="alterEgo">
+</div>
+<div class="form-group">
+  <label for="power">Hero Power&nbsp;*</label>
+  <select class="form-control" id="power" required
+          [(ngModel)]="model.power"
+          ngControl="power">
+    <option *ngFor="let p of powers" [value]="p">{{p}}</option>
+  </select>
+</div>
+
+Each input element has an id property that is used by the label element's for
+attribute to match the label to its input control.
+
+Each input element has a ngControl directive that is required by Angular forms
+to register the control with the form.
+
+Style controls:
+
+The valid control property is the most interesting, because you want to send a strong visual
+signal when a control value is invalid. To create suck visual feedback, you will use the
+Bootstrap custom-forms classes is-valid and is-invalid.
+
+Add a template reference variable called name to the Name <input> tag and use it to display
+the input's CSS classes.
+
+<input type="text" class="form-control" id="name" required
+       [(ngModel)]="model.name"
+       #name="ngForm"
+       #spy
+       [class.is-valid]="name.valid"
+       [class.is-invalid]="!name.valid"
+       ngControl="name">
+       
+ TODO: remove the next diagnostic line 
+{{spy.className}}
+
+The spy template reference variable gets bound to the <input> DOM element, whereas the name variable gets
+bound to the NgModel associated with the input element.
+
+Why "ngForm" ? A Directive's exportAs property tells Angular how to link the reference variable to the 
+directive. You set name to "ngForm" because the ngModel directive's exportAs property is "ngForm"<div class="">
+
+As an alternative to class bindings, you can use an NgClass directive to style a control.
+
+Map<String, bool> setCssValidityClass(NgControl control) {
+  final validityClass = control.valid == true ? 'is-valid' : 'is-invalid';
+  return {validityClass: true};
+}
+
+.... THESE CONCEPT of NgForm needs a lot more understanding.
+
+Show and hide validation error messages:
+
+You can improve the form. The Name input is required, and clearing it turns the out outline red. That says
+something is wrong but the user doesn't know what is wrong or what to do about it.
+Leverage the control's state to reveal a helpful message.
+
+The achieve this effect, andd the following immediately after the Name <input>:
+
+<div [hidden]= "name.valid || name.pristine" class="invalid-feedback">
+  Name is required.
+</div>
+
+You control visibility of the error message by setting the hidden attribute of the <div> based on the state
+of the name control.
+
+User experience is the developer's choice
+
+Some developers want the message to display at all times. If you ignore the pristine state, you would hide the message
+only when the value is valid. If you arrive in this component with a new (blank) hero or an invalid hero,
+you'll see the error message immediately, before you've done anything.
+
+Some developers want the message to display only when the user makes an invalid change. Hiding the message while the
+control is "pristine" achieves that goal.
+
+Submit the form with ngSubmit:
+
+The user would be able to submit this form after filling it in. The Submit button at the bottom of the form
+does nothing on its own, but it will trigger a form submit because of its type (type="submit")
+
+
+
+<form (ngSubmit)="onSubmit()" #heroForm="ngForm">
+
+NgForm directive:
+
+Angular automatically creates and attaches an NgForm directive to the <form> tag.
+
+The NgForm directive supplements the form element with additional features. It holds the controls 
+you created for the elemtns with ngModel and ngCotrl directives, and monitors their properties, including their validity.
+
+<button [disabled]="!heroForm.form.valid" type="submit" class="btn btn-primary">
+  Submit
+</button>
+
+// NGFORM MUST BE INCLUED MORE
+
+
+
+As can be expected for a demo. Jazzing up the demo 
+
+</div>
+
+  Basic Routing:
+
+  1- To tell Angular that your app uses the router, specify "routerProvidersHash"
+     in your app's bootstrap function.
+
+  2- Set the base href (like in sample folder)
+  3- For production: set <base href="/">
+
+  4- Routes:
+    a. Define route path for each app's view.
+       (by defining route paths in a separate file, you can void circular dependencies between route definitions in apps
+       with a rich navigational structure)
+    
+    b. Then update the AppComponent (html, css...)
+
+  5- RouteOutlet:
+    a. is one of the routerDirectives.
+    b. To use a router directive like "RouterOutlet" within a component, add it
+       individually to the component's directives list, or for convenience you can
+       add the router Directives list.
+  
+  6- RouterLinks:
+    Users shouldn't have to paste a route path into the address bar. Instead, add  an anchor to the template that
+    when clicked, triggers navigation to EmployeeListComponent (remember to update the AppComponent)
+-->

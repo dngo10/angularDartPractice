@@ -34,7 +34,8 @@ class Routes{
   static final all = <RouteDefinition>[
     employees, 
     dashboard,
-    RouteDefinition.redirect(path: '', redirectTo: RoutePaths.dashboard.toUrl())
+    RouteDefinition.redirect(path: '', redirectTo: RoutePaths.dashboard.toUrl()),
+    employee
     ];
   // The Routes.all field is a list of route definitions. It contains
   // only one route, but you'll be adding be adding more routes shortly.

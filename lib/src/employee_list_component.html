@@ -8,4 +8,9 @@
   </li>
 </ul>
 
-<my-employee [employee]="selected"></my-employee>
+<div *ngIf="selected != null">
+  <h2>
+    {{selected.name | uppercase}} is my hero
+  </h2>
+  <button (click)="gotoDetail()">View Details</button>
+</div>

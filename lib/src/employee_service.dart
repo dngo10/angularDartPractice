@@ -14,4 +14,8 @@ import 'employees.dart';
 
 class EmployeeService{
   Future<List<Employee>> getAll() async => employees;
+
+  Future<Employee> get(int id) async{
+    return (await getAll()).firstWhere((employee) => employee.id == id);
+  }
 }

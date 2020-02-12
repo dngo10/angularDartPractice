@@ -1,25 +1,36 @@
 import 'package:angular/angular.dart';
 import 'package:angular_forms/angular_forms.dart';
+import 'package:angular_router/angular_router.dart';
 import 'employee.dart';
+
+import 'employee_service.dart';
+import 'router_paths.dart';
 
 
 
 @Component(
   selector: 'my-employee',
-    template: '''
-    <div *ngIf="employee != null">
-      <h2>{{employee.name}}</h2>
-      <div><label>id: </label>{{employee.id}}</div>
-      <div>
-        <label>name: </label>
-        <input [(ngModel)]="employee.name" placeholder="name">
-      </div>
-    </div>''',
+  templateUrl: 'employee_component.html',
   directives: [coreDirectives, formDirectives],
 )
 
-class EmployeeComponent{
-
-  @Input()
+class EmployeeComponent implements OnActivate{
+  final EmployeeService _employeeService;
+  final Location _location;
   Employee employee;
+
+  EmployeeComponent(this._employeeService, this._location);
+
+  @override
+  void onActivate(_, RouterState current) async{
+    final id = getId(current.parameters);
+    if(id != null) employee = await (_employeeService.get(id));
+  }
+
+  int getId(Map<String, String> parameters){
+    final id = parameters[idParam];
+    return id == null ? null : int.tryParse(id);
+  }
+
+  void goBack() => this._location.back();
 }

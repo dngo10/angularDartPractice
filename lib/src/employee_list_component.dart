@@ -1,5 +1,6 @@
 import 'package:angular/angular.dart';
 import 'package:angular_app/src/employee_component.dart';
+import 'package:angular_router/angular_router.dart';
 import 'employee_service.dart';
 import 'employee.dart';
 
@@ -8,7 +9,8 @@ import 'employee.dart';
   templateUrl: 'employee_list_component.html',
   styleUrls: ['employee_list_component.css'],
   directives: [coreDirectives, EmployeeComponent],
-  providers: [ClassProvider(EmployeeService)]
+  providers: [ClassProvider(EmployeeService)],
+  pipes: [commonPipes]
 )
 
 class EmployeeListComponent implements OnInit{
@@ -20,7 +22,10 @@ class EmployeeListComponent implements OnInit{
   @override
   void ngOnInit(){
     this._getEmployeess();
+    
   }
+
+  Future<NavigationResult> gotoDetail() => null;
 
   Employee selected = null;
 
@@ -33,5 +38,17 @@ class EmployeeListComponent implements OnInit{
 
   void onSelect(Employee employee){
     this.selected = employee;
+  }
+
+  void onDelete(Employee oldEmployee){
+    if(this.selected  == employeess.first){
+      this.selected = null;
+    }
+  }
+
+  void onUpdate(Employee newEmployee){
+    if(this.employeess != null){
+      this.employeess.add(newEmployee);
+    }
   }
 }

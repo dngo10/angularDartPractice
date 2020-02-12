@@ -1,0 +1,9 @@
+<div *ngIf="employee != null">
+    <h2>{{employee.name}}</h2>
+    <div><label>id: </label>{{employee.id}}</div>
+    <div>
+      <label>name: </label>
+      <input [(ngModel)]="employee.name" placeholder="name">
+    </div>
+    <button (click)="goBack()">Back</button>
+  </div>
